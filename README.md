@@ -1,3 +1,3 @@
 # cache-proxy
 
-create database test_cache;
+see tests/Business/CacheEntryTest.php
