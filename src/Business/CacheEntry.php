@@ -28,6 +28,7 @@ class CacheEntry
         $this->mainKey = $mainKey;
         $this->cacheKeyTemplates[KeyFacade::getUniKey(array($mainKey))] = KeyFacade::getCacheKeyTemplate($this->name, array($mainKey));
     }
+    
 
     public function setLogger($logger)
     {
