@@ -41,7 +41,7 @@ class CacheEntry
         return $this;
     }
 
-    public function setRedis(\Redis $redis)
+    public function setRedis($redis)
     {
         $this->redis = $redis;
         return $this;
