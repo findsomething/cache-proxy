@@ -20,6 +20,8 @@ class CacheEntry
     private $mainKey;
     private $logger;
 
+    private $expire = 86400;
+
     private $cacheKeyTemplates = array();
 
     public function __construct($name, $mainKey = 'id')
@@ -111,7 +113,7 @@ class CacheEntry
 
     protected function getFromRedis($cacheKey)
     {
-        return $this->redis->hGetAll($cacheKey);
+        return json_decode($this->redis->get($cacheKey), true);
     }
 
     protected function getFromDb($cacheKey)
@@ -119,7 +121,7 @@ class CacheEntry
         list($sql, $values) = SqlFacade::toSql($cacheKey);
         $resource = $this->db->fetchAssoc($sql, $values) ?: null;
         if (!empty($resource)) {
-            $this->redis->hMset($cacheKey, $resource);
+            $this->redis->setex($cacheKey, $this->expire, json_encode($resource));
         }
         return $resource;
     }
