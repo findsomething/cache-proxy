@@ -19,6 +19,7 @@ class CacheEntryTest extends \PHPUnit_Framework_TestCase
     private $tableName;
     private $resources;
     private $keys;
+    private $value3;
 
     public function setUp()
     {
@@ -26,15 +27,16 @@ class CacheEntryTest extends \PHPUnit_Framework_TestCase
         $this->db = StorageKit::getDb($this->config['database']);
         $this->redis = StorageKit::getRedis($this->config['redis']);
         $this->tableName = "test";
+        $this->value3 = hex2bin('11e6aa19dd0184f0bff3d0a637ed5b69');
         $this->resources = array(
-            array('value1' => '1', 'value2' => '2', 'value3' => '3'),
+            array('value1' => '1', 'value2' => '2', 'value3' => $this->value3),
         );
         $this->keys = array(
             array('value1'),
             array('value2', 'value3'),
         );
         $this->initData();
-        $this->cacheEntry = new CacheEntry($this->tableName);
+        $this->cacheEntry = new CacheEntry($this->tableName, 'id', true);
         $this->cacheEntry->setDb($this->db)
             ->setRedis($this->redis)
             ->setKeys($this->keys);
@@ -51,13 +53,13 @@ class CacheEntryTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($value);
         $this->assertEquals($value['value1'], 1);
         $this->assertTrue($this->redis->exists($this->cacheEntry->getCacheKey(array('value1'), array(1))));
-        $value = $this->cacheEntry->get(array('value2', 'value3'), array(2, 3));
+        $value = $this->cacheEntry->get(array('value2', 'value3'), array(2, $this->value3));
         $this->assertNotEmpty($value);
         $this->assertEquals($value['value2'], 2);
-        $this->assertTrue($this->redis->exists($this->cacheEntry->getCacheKey(array('value2', 'value3'), array(2, 3))));
+        $this->assertTrue($this->redis->exists($this->cacheEntry->getCacheKey(array('value2', 'value3'), array(2, $this->value3))));
         $this->cacheEntry->clear(array('value1'), array(1));
         $this->assertFalse($this->redis->exists($this->cacheEntry->getCacheKey(array('value1'), array(1))));
-        $this->assertFalse($this->redis->exists($this->cacheEntry->getCacheKey(array('value2', 'value3'), array(2, 3))));
+        $this->assertFalse($this->redis->exists($this->cacheEntry->getCacheKey(array('value2', 'value3'), array(2, $this->value3))));
     }
 
     private function initData()

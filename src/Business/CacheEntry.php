@@ -23,14 +23,16 @@ class CacheEntry
     private $expire = 86400;
 
     private $cacheKeyTemplates = array();
+    private $binarySupport = false;
 
-    public function __construct($name, $mainKey = 'id')
+    public function __construct($name, $mainKey = 'id', $binarySupport = false)
     {
         $this->name = $name;
         $this->mainKey = $mainKey;
         $this->cacheKeyTemplates[KeyFacade::getUniKey(array($mainKey))] = KeyFacade::getCacheKeyTemplate($this->name, array($mainKey));
+        $this->binarySupport = $binarySupport;
     }
-    
+
 
     public function setLogger($logger)
     {
@@ -113,16 +115,30 @@ class CacheEntry
 
     protected function getFromRedis($cacheKey)
     {
+        if ($this->binarySupport) {
+            return $this->redis->hGetAll($cacheKey);
+        }
         return json_decode($this->redis->get($cacheKey), true);
+    }
+
+    protected function updateRedis($cacheKey, $resource)
+    {
+        if (!(!empty($resource) && is_array($resource))) {
+            return false;
+        }
+        if (!$this->binarySupport) {
+            return $this->redis->setex($cacheKey, $this->expire, json_encode($resource));
+        }
+        $this->redis->hMset($cacheKey, $resource);
+        $this->redis->expire($cacheKey, $this->expire);
+        return true;
     }
 
     protected function getFromDb($cacheKey)
     {
         list($sql, $values) = SqlFacade::toSql($cacheKey);
         $resource = $this->db->fetchAssoc($sql, $values) ?: null;
-        if (!empty($resource)) {
-            $this->redis->setex($cacheKey, $this->expire, json_encode($resource));
-        }
+        $this->updateRedis($cacheKey, $resource);
         return $resource;
     }
 }
