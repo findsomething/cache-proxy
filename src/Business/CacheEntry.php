@@ -59,6 +59,11 @@ class CacheEntry
         return $this;
     }
 
+    public function setExpire($expire)
+    {
+        $this->expire = $expire;
+    }
+
     public function get($keys, $values)
     {
         $cacheKey = $this->getCacheKey($keys, $values);
