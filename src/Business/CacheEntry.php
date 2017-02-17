@@ -7,7 +7,6 @@
  */
 namespace FSth\CacheProxy\Business;
 
-use Doctrine\DBAL\Connection;
 use FSth\CacheProxy\Exception\RuntimeException;
 use FSth\CacheProxy\Facade\KeyFacade;
 use FSth\CacheProxy\Facade\SqlFacade;
@@ -39,7 +38,7 @@ class CacheEntry
         $this->logger = $logger;
     }
 
-    public function setDb(Connection $db)
+    public function setDb($db)
     {
         $this->db = $db;
         return $this;
