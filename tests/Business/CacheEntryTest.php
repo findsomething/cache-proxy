@@ -39,7 +39,8 @@ class CacheEntryTest extends \PHPUnit_Framework_TestCase
         $this->cacheEntry = new CacheEntry($this->tableName, 'id', true);
         $this->cacheEntry->setDb($this->db)
             ->setRedis($this->redis)
-            ->setKeys($this->keys);
+            ->bindKeys($this->keys)
+            ->setPrefix("test");
     }
 
     public function tearDown()

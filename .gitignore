@@ -8,3 +8,4 @@
 /phinx.php
 /composer.lock
 !.gitkeep
+/.idea
