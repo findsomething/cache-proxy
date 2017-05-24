@@ -75,8 +75,9 @@ class CacheEntry
     public function get($keys, $values)
     {
         $cacheKey = $this->getCacheKey($keys, $values);
-        if ($this->redis->exists($cacheKey)) {
-            return $this->getFromRedis($cacheKey);
+        $resources = $this->getFromRedis($cacheKey);
+        if (!empty($resources)) {
+            return $resources;
         }
         $resources = $this->getFromDb($cacheKey);
         $this->updateRedis($cacheKey, $resources);
